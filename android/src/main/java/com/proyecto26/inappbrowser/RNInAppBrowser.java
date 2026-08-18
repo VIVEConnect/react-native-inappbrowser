@@ -61,6 +61,7 @@ public class RNInAppBrowser {
   private static final String KEY_BROWSER_PACKAGE = "browserPackage";
   private static final String KEY_SHOW_IN_RECENTS = "showInRecents";
   private static final String KEY_INCLUDE_REFERRER = "includeReferrer";
+  private static final String KEY_EPHEMERAL_WEB_SESSION = "ephemeralWebSession";
 
   private static final String ACTION_CUSTOM_TABS_CONNECTION = "android.support.customtabs.action.CustomTabsService";
   private static final String CHROME_PACKAGE_STABLE = "com.android.chrome";
@@ -147,6 +148,20 @@ public class RNInAppBrowser {
         context.getResources(),
         isLightTheme ? R.drawable.ic_arrow_back_black : R.drawable.ic_arrow_back_white
       ));
+    }
+    if (options.hasKey(KEY_EPHEMERAL_WEB_SESSION) &&
+        options.getBoolean(KEY_EPHEMERAL_WEB_SESSION)) {
+      String packageName = getDefaultBrowser(currentActivity);
+      if (options.hasKey(KEY_BROWSER_PACKAGE)) {
+        String browserPackageName = options.getString(KEY_BROWSER_PACKAGE);
+        if (!TextUtils.isEmpty(browserPackageName)) {
+          packageName = browserPackageName;
+        }
+      }
+      if (!TextUtils.isEmpty(packageName) &&
+          CustomTabsClient.isEphemeralBrowsingSupported(currentActivity, packageName)) {
+        builder.setEphemeralBrowsingEnabled(true);
+      }
     }
 
     CustomTabsIntent customTabsIntent = builder.build();
